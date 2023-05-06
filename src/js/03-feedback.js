@@ -1,9 +1,6 @@
 import throttle from 'lodash.throttle';
 const refs = {
   formEl: document.querySelector('.feedback-form'),
-  inputEl: document.querySelector('input'),
-  textareaEl: document.querySelector('textarea'),
-  buttonEl: document.querySelector('button'),
 };
 
 const FORM_MESSAGE = 'feedback-form-state';
@@ -15,10 +12,9 @@ refs.formEl.addEventListener('submit', onFormSubmit);
 refs.formEl.addEventListener('input', throttle(onInputData, 500));
 
 function onInputData(event) {
-  const email = event.target.value.trim();
-  formData[event.target.name] = event.target.value.trim();
-
   try {
+    const value = event.target.value.trim();
+    formData[event.target.name] = value;
     localStorage.setItem(FORM_MESSAGE, JSON.stringify(formData));
   } catch (error) {
     console.log(error.message);
@@ -27,8 +23,9 @@ function onInputData(event) {
 
 function onFormSubmit(event) {
   event.preventDefault();
-  if (refs.inputEl.value === '' || refs.textareaEl.value === '') return;
+  // if (refs.inputEl.value === '' || refs.textareaEl.value === '') return;
   console.log(formData);
+  formData = {};
   event.currentTarget.reset();
   localStorage.removeItem(FORM_MESSAGE);
 }
@@ -39,9 +36,9 @@ function populateData() {
     if (!savedData) return;
 
     formData = JSON.parse(savedData);
-
-    refs.inputEl.value = formData[refs.inputEl.name] || '';
-    refs.textareaEl.value = formData[refs.textareaEl.name] || '';
+    Object.entries(formData).forEach(([key, value]) => {
+      refs.formEl.elements[key].value = value;
+    });
   } catch (error) {
     console.log(error.message);
   }
